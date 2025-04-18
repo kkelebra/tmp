@@ -113,72 +113,85 @@ export class ScreenshotHelper {
     return buffer
   }
 
+  private async captureScreenshotLinux(): Promise<Buffer> {
+    const tmpPath = path.join(app.getPath("temp"), `${uuidv4()}.png`);
+    try {
+      // Ejecuta el comando `import` para capturar la pantalla completa
+      await execFileAsync("import", ["-window", "root", tmpPath]);
+      const buffer = await fs.promises.readFile(tmpPath);
+      await fs.promises.unlink(tmpPath);
+      return buffer;
+    } catch (error) {
+      console.error("Error capturing screenshot on Linux:", error);
+      throw error;
+    }
+  }
+
   public async takeScreenshot(
     hideMainWindow: () => void,
     showMainWindow: () => void
   ): Promise<string> {
-    console.log("Taking screenshot in view:", this.view)
-    hideMainWindow()
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    console.log("Taking screenshot in view:", this.view);
+    hideMainWindow();
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    let screenshotPath = ""
+    let screenshotPath = "";
     try {
-      // Get screenshot buffer using native methods
+      // Selecciona el método de captura según el sistema operativo
       const screenshotBuffer =
         process.platform === "darwin"
           ? await this.captureScreenshotMac()
-          : await this.captureScreenshotWindows()
+          : process.platform === "win32"
+          ? await this.captureScreenshotWindows()
+          : await this.captureScreenshotLinux(); // Método para Linux
 
-      // Save and manage the screenshot based on current view
+      // Guarda y gestiona la captura de pantalla según la vista actual
       if (this.view === "queue") {
-        screenshotPath = path.join(this.screenshotDir, `${uuidv4()}.png`)
-        await fs.promises.writeFile(screenshotPath, screenshotBuffer)
-        console.log("Adding screenshot to main queue:", screenshotPath)
-        this.screenshotQueue.push(screenshotPath)
+        screenshotPath = path.join(this.screenshotDir, `${uuidv4()}.png`);
+        await fs.promises.writeFile(screenshotPath, screenshotBuffer);
+        console.log("Adding screenshot to main queue:", screenshotPath);
+        this.screenshotQueue.push(screenshotPath);
         if (this.screenshotQueue.length > this.MAX_SCREENSHOTS) {
-          const removedPath = this.screenshotQueue.shift()
+          const removedPath = this.screenshotQueue.shift();
           if (removedPath) {
             try {
-              await fs.promises.unlink(removedPath)
-              console.log(
-                "Removed old screenshot from main queue:",
-                removedPath
-              )
+              await fs.promises.unlink(removedPath);
+              console.log("Removed old screenshot from main queue:", removedPath);
             } catch (error) {
-              console.error("Error removing old screenshot:", error)
+              console.error("Error removing old screenshot:", error);
             }
           }
         }
       } else {
-        // In solutions view, only add to extra queue
-        screenshotPath = path.join(this.extraScreenshotDir, `${uuidv4()}.png`)
-        await fs.promises.writeFile(screenshotPath, screenshotBuffer)
-        console.log("Adding screenshot to extra queue:", screenshotPath)
-        this.extraScreenshotQueue.push(screenshotPath)
+        // En la vista de soluciones, solo se agrega a la cola extra
+        screenshotPath = path.join(this.extraScreenshotDir, `${uuidv4()}.png`);
+        await fs.promises.writeFile(screenshotPath, screenshotBuffer);
+        console.log("Adding screenshot to extra queue:", screenshotPath);
+        this.extraScreenshotQueue.push(screenshotPath);
         if (this.extraScreenshotQueue.length > this.MAX_SCREENSHOTS) {
-          const removedPath = this.extraScreenshotQueue.shift()
+          const removedPath = this.extraScreenshotQueue.shift();
           if (removedPath) {
             try {
-              await fs.promises.unlink(removedPath)
+              await fs.promises.unlink(removedPath);
               console.log(
                 "Removed old screenshot from extra queue:",
                 removedPath
-              )
+              );
             } catch (error) {
-              console.error("Error removing old screenshot:", error)
+              console.error("Error removing old screenshot:", error);
             }
           }
         }
       }
     } catch (error) {
-      console.error("Screenshot error:", error)
-      throw error
+      console.error("Screenshot error:", error);
+      throw error;
     } finally {
-      await new Promise((resolve) => setTimeout(resolve, 50))
-      showMainWindow()
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      showMainWindow();
     }
 
-    return screenshotPath
+    return screenshotPath;
   }
 
   public async getImagePreview(filepath: string): Promise<string> {

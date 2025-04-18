@@ -27,6 +27,10 @@ Interview Coder is a desktop application designed to help users with technical c
 - Node.js (v16 or higher)
 - npm or yarn
 
+### Linux Dependencies
+
+- ImageMagick (for `import` command):
+
 ### Installation
 
 1. Clone the repository:
