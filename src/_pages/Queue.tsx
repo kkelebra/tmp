@@ -34,6 +34,7 @@ const Queue: React.FC<QueueProps> = ({
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
   const [tooltipHeight, setTooltipHeight] = useState(0)
   const contentRef = useRef<HTMLDivElement>(null)
+  const [subtitles, setSubtitles] = useState<string[]>([])
 
   const {
     data: screenshots = [],
@@ -125,6 +126,21 @@ const Queue: React.FC<QueueProps> = ({
     }
   }, [isTooltipVisible, tooltipHeight])
 
+  useEffect(() => {
+    const handleSubtitleReceived = (_event: any, subtitle: string) => {
+      setSubtitles((prev) => [...prev, subtitle])
+    }
+
+    // window.electronAPI.on("subtitle-received", handleSubtitleReceived)
+
+    // return () => {
+    //   window.electronAPI.removeListener(
+    //     "subtitle-received",
+    //     handleSubtitleReceived
+    //   )
+    // }
+  }, [])
+
   const handleTooltipVisibilityChange = (visible: boolean, height: number) => {
     setIsTooltipVisible(visible)
     setTooltipHeight(height)
@@ -147,6 +163,14 @@ const Queue: React.FC<QueueProps> = ({
             currentLanguage={currentLanguage}
             setLanguage={setLanguage}
           />
+        </div>
+        <div>
+          <h1>Subtítulos Capturados</h1>
+          <div>
+            {subtitles.map((subtitle, index) => (
+              <p key={index}>{subtitle}</p>
+            ))}
+          </div>
         </div>
       </div>
     </div>

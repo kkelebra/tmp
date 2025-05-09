@@ -42,3 +42,13 @@
   inset: -16px;
   opacity: 1;
 }
+
+#root {
+  width: 100vw; /* Full width of the viewport */
+  height: 100vh; /* Full height of the viewport */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Prevent scrollbars */
+  background: rgba(240, 240, 240, 1); /* Optional: Set a background color */
+}

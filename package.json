@@ -135,7 +135,8 @@
     "react-syntax-highlighter": "^15.6.1",
     "screenshot-desktop": "^1.15.0",
     "tailwind-merge": "^2.5.5",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "ws": "^8.13.0"
   },
   "devDependencies": {
     "@electron/typescript-definitions": "^8.14.0",

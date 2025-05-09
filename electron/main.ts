@@ -5,6 +5,7 @@ import { ProcessingHelper } from "./ProcessingHelper"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
 import { initAutoUpdater } from "./autoUpdater"
+import { createWebSocketServer } from "./websocket-server"
 import * as dotenv from "dotenv"
 
 // Constants
@@ -272,6 +273,9 @@ async function createWindow(): Promise<void> {
   state.currentX = bounds.x
   state.currentY = bounds.y
   state.isWindowVisible = true
+
+  // Initialize WebSocket server
+  createWebSocketServer(state.mainWindow)
 }
 
 function handleWindowMove(): void {
