@@ -7,6 +7,7 @@ import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
 import { initAutoUpdater } from "./autoUpdater"
 import { configHelper } from "./ConfigHelper"
+import { createWebSocketServer } from "./websocket-server"
 import * as dotenv from "dotenv"
 
 // Constants
@@ -364,6 +365,9 @@ async function createWindow(): Promise<void> {
     state.mainWindow.setOpacity(savedOpacity);
     state.isWindowVisible = true;
   }
+
+  // Initialize WebSocket server
+  createWebSocketServer(state.mainWindow)
 }
 
 function handleWindowMove(): void {
