@@ -7,7 +7,7 @@ import { ScreenshotHelper } from "./ScreenshotHelper"
 import { ShortcutsHelper } from "./shortcuts"
 import { initAutoUpdater } from "./autoUpdater"
 import { configHelper } from "./ConfigHelper"
-import { createWebSocketServer } from "./websocket-server"
+import { startApiRest, sendLastTwoMessages } from "./websocket-server"
 import * as dotenv from "dotenv"
 
 // Constants
@@ -86,6 +86,7 @@ export interface IShortcutsHelperDeps {
   moveWindowRight: () => void
   moveWindowUp: () => void
   moveWindowDown: () => void
+  sendLastTwoMessages: () => void
 }
 
 export interface IIpcHandlerDeps {
@@ -112,7 +113,7 @@ export interface IIpcHandlerDeps {
 
 // Initialize helpers
 function initializeHelpers() {
-  state.screenshotHelper = new ScreenshotHelper(state.view)
+  state.screenshotHelper = new ScreenshotHelper(state.view);
   state.processingHelper = new ProcessingHelper({
     getScreenshotHelper,
     getMainWindow,
@@ -128,8 +129,9 @@ function initializeHelpers() {
     deleteScreenshot,
     setHasDebugged,
     getHasDebugged,
-    PROCESSING_EVENTS: state.PROCESSING_EVENTS
-  } as IProcessingHelperDeps)
+    PROCESSING_EVENTS: state.PROCESSING_EVENTS,
+  } as IProcessingHelperDeps);
+
   state.shortcutsHelper = new ShortcutsHelper({
     getMainWindow,
     takeScreenshot,
@@ -151,8 +153,9 @@ function initializeHelpers() {
         )
       ),
     moveWindowUp: () => moveWindowVertical((y) => y - state.step),
-    moveWindowDown: () => moveWindowVertical((y) => y + state.step)
-  } as IShortcutsHelperDeps)
+    moveWindowDown: () => moveWindowVertical((y) => y + state.step),
+    sendLastTwoMessages, // Pass the method here
+  } as IShortcutsHelperDeps);
 }
 
 // Auth callback handler
@@ -365,9 +368,8 @@ async function createWindow(): Promise<void> {
     state.mainWindow.setOpacity(savedOpacity);
     state.isWindowVisible = true;
   }
-
-  // Initialize WebSocket server
-  createWebSocketServer(state.mainWindow)
+  // hideMainWindow();
+  // startApiRest();
 }
 
 function handleWindowMove(): void {

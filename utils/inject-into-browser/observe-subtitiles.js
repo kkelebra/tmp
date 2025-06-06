@@ -15,6 +15,22 @@ var speakerObservers = new Map(); // Track observers for each speaker
 var activeSpeakerBuffers = new Map(); // Buffer for each active speaker's transcript
 var speakerOrder = []; // Array to track the order of speakerIds
 
+// Redirect console.log and console.error
+const originalLog = console.log;
+const originalError = console.error;
+
+// Suppress logs by default
+console.log = function (...args) {
+  // Uncomment the following line to enable logs when needed
+  // originalLog.apply(console, args);
+};
+
+// Suppress errors by default
+console.error = function (...args) {
+  // Uncomment the following line to enable errors when needed
+  // originalError.apply(console, args);
+};
+
 // Función para configurar el WebSocket
 var setupWebSocket = function () {
   console.log("Setting up WebSocket");
@@ -28,21 +44,26 @@ var setupWebSocket = function () {
 
   console.log("WebSocket URL:", wsUrl);
 
-  ws = new WebSocket(BASE_URL_BACKEND);
+  try {
+    ws = new WebSocket(BASE_URL_BACKEND);
+    ws.onopen = () => {
+      console.log("WebSocket Connected");
+    };
 
-  ws.onopen = () => {
-    console.log("WebSocket Connected");
-  };
+    ws.onclose = () => {
+      console.log("WebSocket Disconnected");
+      // Intentar reconectar después de 5 segundos
+      setTimeout(setupWebSocket, 5000);
+    };
 
-  ws.onclose = () => {
-    console.log("WebSocket Disconnected");
+    ws.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+  } catch (error) {
+    console.error("Error al inicializar el WebSocket:", error);
     // Intentar reconectar después de 5 segundos
     setTimeout(setupWebSocket, 5000);
-  };
-
-  ws.onerror = (error) => {
-    console.error("WebSocket Error:", error);
-  };
+  }
 };
 
 // Función para verificar si un texto es una oración válida usando Compromise.js

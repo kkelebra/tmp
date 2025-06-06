@@ -2,7 +2,7 @@
 
 import path from "node:path"
 import fs from "node:fs"
-import { app } from "electron"
+import { app, screen as electronScreen } from "electron"
 import { v4 as uuidv4 } from "uuid"
 import { execFile } from "child_process"
 import { promisify } from "util"
@@ -145,18 +145,41 @@ export class ScreenshotHelper {
     this.extraScreenshotQueue = []
   }
 
+  private getCurrentScreenIndex(): number {
+    // Obtiene la ventana principal de Electron
+    const displays = electronScreen.getAllDisplays();
+    const mainWindow = electronScreen.getCursorScreenPoint
+      ? electronScreen.getDisplayNearestPoint(electronScreen.getCursorScreenPoint())
+      : displays[0];
+
+    // Encuentra el display que contiene la mayor parte de la ventana principal
+    // (puedes ajustar esto si tienes acceso directo a la ventana principal)
+    const mainBounds = mainWindow.bounds;
+    const index = displays.findIndex(
+      d =>
+        d.bounds.x === mainBounds.x &&
+        d.bounds.y === mainBounds.y &&
+        d.bounds.width === mainBounds.width &&
+        d.bounds.height === mainBounds.height
+    );
+    return index >= 0 ? index : 0;
+  }
+
   private async captureScreenshot(): Promise<Buffer> {
     try {
       console.log("Starting screenshot capture...");
-      
-      // For Windows, try multiple methods
+
+      // Detectar el índice de pantalla donde está la app
+      const screenIndex = this.getCurrentScreenIndex();
+      console.log("Capturando pantalla índice:", screenIndex);
+
+      // Para Windows, puedes seguir usando el método especial si lo deseas
       if (process.platform === 'win32') {
         return await this.captureWindowsScreenshot();
-      } 
-      
-      // For macOS and Linux, use buffer directly
-      console.log("Taking screenshot on non-Windows platform");
-      const buffer = await screenshot({ format: 'png' });
+      }
+
+      // Para macOS y Linux, usar screen: n
+      const buffer = await screenshot({ format: 'png', screen: screenIndex });
       console.log(`Screenshot captured successfully, size: ${buffer.length} bytes`);
       return buffer;
     } catch (error) {

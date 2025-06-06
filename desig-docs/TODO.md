@@ -1,1 +1,3 @@
+- take the screenshots of the screen that has the program
+- get the ocr working, just put the coordinates
 - keep reading amurex content to include more functionality

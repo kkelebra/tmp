@@ -126,9 +126,14 @@ export class ShortcutsHelper {
     })
 
     globalShortcut.register("CommandOrControl+B", () => {
-      console.log("Command/Ctrl + B pressed. Toggling window visibility.")
+      //console.log("Command/Ctrl + B pressed. Toggling window visibility.")
       this.deps.toggleMainWindow()
+      //this.deps.sendLastTwoMessages()
     })
+
+    globalShortcut.register("CommandOrControl+Space", () => {
+      this.deps.sendLastTwoMessages();
+    });
 
     globalShortcut.register("CommandOrControl+Q", () => {
       console.log("Command/Ctrl + Q pressed. Quitting application.")

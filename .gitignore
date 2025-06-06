@@ -12,3 +12,4 @@ scripts/
 scripts/manual-notarize.js
 venv/
 logs/**
+package-lock.json
